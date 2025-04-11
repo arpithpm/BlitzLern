@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Text, TouchableOpacity, SafeAreaView } from "react-native";
 
 import AuthNavigator from "./src/navigation/AuthNavigator";
+import HomeScreen from "./src/screens/HomeScreen";
+import GermanArticlesPracticeScreen from "./src/screens/practice/GermanArticlesPracticeScreen";
 import { supabase } from "./src/services/supabaseClient";
 
 const Stack = createStackNavigator();
@@ -44,40 +47,24 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {session ? (
-          // User is signed in, show main app
-          <Stack.Screen name="Home" component={PlaceholderHomeScreen} />
-        ) : (
-          // No user signed in, show authentication screens
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
-
-// Placeholder component for the main app screen
-// This would be replaced with your actual home screen component
-function PlaceholderHomeScreen() {
-  return (
-    <SafeAreaView
-      style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-    >
-      <Text>Welcome to Blitzlern!</Text>
-      <Text>You are now logged in.</Text>
-      <TouchableOpacity
-        style={{
-          marginTop: 20,
-          backgroundColor: "#1e3a8a",
-          padding: 10,
-          borderRadius: 5,
-        }}
-        onPress={() => supabase.auth.signOut()}
-      >
-        <Text style={{ color: "white" }}>Sign Out</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {session ? (
+            // User is signed in, show main app
+            <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen
+                name="GermanArticlesPractice"
+                component={GermanArticlesPracticeScreen}
+              />
+            </>
+          ) : (
+            // No user signed in, show authentication screens
+            <Stack.Screen name="Auth" component={AuthNavigator} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

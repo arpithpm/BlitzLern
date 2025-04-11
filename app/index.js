@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import AuthNavigator from "../src/navigation/AuthNavigator";
 import { supabase } from "../src/services/supabaseClient";
-import { TouchableOpacity } from "react-native";
-import { Session } from "@supabase/supabase-js";
+import { TouchableOpacity, Text } from "react-native";
 
 const Stack = createStackNavigator();
 

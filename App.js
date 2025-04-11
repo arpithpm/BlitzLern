@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -47,23 +46,21 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {session ? (
-            // User is signed in, show main app
-            <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen
-                name="GermanArticlesPractice"
-                component={GermanArticlesPracticeScreen}
-              />
-            </>
-          ) : (
-            // No user signed in, show authentication screens
-            <Stack.Screen name="Auth" component={AuthNavigator} />
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {session ? (
+          // User is signed in, show main app
+          <>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="GermanArticlesPractice"
+              component={GermanArticlesPracticeScreen}
+            />
+          </>
+        ) : (
+          // No user signed in, show authentication screens
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        )}
+      </Stack.Navigator>
     </SafeAreaProvider>
   );
 }

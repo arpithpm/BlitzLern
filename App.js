@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Text, TouchableOpacity, SafeAreaView } from "react-native";
 
 import AuthNavigator from "./src/navigation/AuthNavigator";
 import HomeScreen from "./src/screens/HomeScreen";

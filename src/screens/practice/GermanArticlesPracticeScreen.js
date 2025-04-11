@@ -6,50 +6,51 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { colors, globalStyles } from "../../utils/styles";
-
-// Sample data for German nouns with their articles
-// In a real app, you'd likely fetch this from an API or database
-const sampleNouns = [
-  { article: "der", noun: "Mann", translation: "man", gender: "masculine" },
-  { article: "die", noun: "Frau", translation: "woman", gender: "feminine" },
-  { article: "das", noun: "Kind", translation: "child", gender: "neuter" },
-  { article: "der", noun: "Tisch", translation: "table", gender: "masculine" },
-  { article: "die", noun: "Lampe", translation: "lamp", gender: "feminine" },
-  { article: "das", noun: "Buch", translation: "book", gender: "neuter" },
-  { article: "der", noun: "Stuhl", translation: "chair", gender: "masculine" },
-  { article: "die", noun: "Tür", translation: "door", gender: "feminine" },
-  { article: "das", noun: "Fenster", translation: "window", gender: "neuter" },
-  {
-    article: "der",
-    noun: "Computer",
-    translation: "computer",
-    gender: "masculine",
-  },
-];
+import { getGermanNouns } from "../../services/germanNounsService";
 
 export default function GermanArticlesPracticeScreen({ navigation }) {
+  const [nouns, setNouns] = useState([]);
   const [currentNoun, setCurrentNoun] = useState(null);
   const [score, setScore] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Load nouns when component mounts
   useEffect(() => {
-    getNextNoun();
+    loadNouns();
   }, []);
 
-  const getNextNoun = () => {
+  // Load nouns from local storage
+  const loadNouns = async () => {
+    try {
+      setLoading(true);
+      const savedNouns = await getGermanNouns();
+      setNouns(savedNouns);
+      setLoading(false);
+      getNextNoun(savedNouns);
+    } catch (error) {
+      console.error("Error loading nouns:", error);
+      setLoading(false);
+    }
+  };
+
+  const getNextNoun = (nounsArray = nouns) => {
+    // Make sure we have nouns to choose from
+    if (nounsArray.length === 0) return;
+
     // Reset display states
     setShowResult(false);
     setSelectedArticle(null);
 
     // Get a random noun
-    const randomIndex = Math.floor(Math.random() * sampleNouns.length);
-    setCurrentNoun(sampleNouns[randomIndex]);
+    const randomIndex = Math.floor(Math.random() * nounsArray.length);
+    setCurrentNoun(nounsArray[randomIndex]);
   };
 
   const handleArticleSelection = (article) => {
@@ -130,6 +131,16 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
     getNextNoun();
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centerContent]}>
+        <StatusBar style="light" />
+        <ActivityIndicator size="large" color={colors.white} />
+        <Text style={styles.loadingText}>Loading nouns...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -147,7 +158,7 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
       </View>
 
       <View style={styles.content}>
-        {currentNoun && (
+        {currentNoun ? (
           <>
             <View style={styles.nounCard}>
               <Text style={styles.nounText}>{currentNoun.noun}</Text>
@@ -207,7 +218,10 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
             </View>
 
             {showResult && (
-              <TouchableOpacity style={styles.nextButton} onPress={getNextNoun}>
+              <TouchableOpacity
+                style={styles.nextButton}
+                onPress={() => getNextNoun()}
+              >
                 <Text style={styles.nextButtonText}>Next Noun</Text>
               </TouchableOpacity>
             )}
@@ -221,6 +235,13 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
               </TouchableOpacity>
             )}
           </>
+        ) : (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>No nouns available.</Text>
+            <TouchableOpacity style={styles.reloadButton} onPress={loadNouns}>
+              <Text style={styles.reloadButtonText}>Reload Nouns</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </SafeAreaView>
@@ -231,6 +252,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,
+  },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colors.white,
+    marginTop: 10,
+    fontSize: 16,
   },
   header: {
     flexDirection: "row",
@@ -355,5 +385,25 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: colors.primary,
     fontSize: 16,
+  },
+  emptyStateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyStateText: {
+    fontSize: 18,
+    color: colors.grayText,
+    marginBottom: 20,
+  },
+  reloadButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  reloadButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

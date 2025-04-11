@@ -62,26 +62,66 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
     }
   };
 
-  const getBackgroundColor = (article) => {
-    if (!showResult || selectedArticle !== article) {
-      return article === "der"
-        ? "#add8e6"
-        : article === "die"
-        ? "#ffb6c1"
-        : "#98fb98";
+  const getButtonStyle = (article) => {
+    // Base style with appropriate color based on the article
+    const baseStyle = [
+      styles.articleButton,
+      {
+        backgroundColor:
+          article === "der"
+            ? "#add8e6"
+            : article === "die"
+            ? "#ffb6c1"
+            : "#98fb98",
+      },
+    ];
+
+    if (showResult) {
+      // If showing results and this is the correct article, highlight it
+      if (article === currentNoun.article) {
+        baseStyle.push({
+          backgroundColor: "#4CAF50",
+          borderWidth: 2,
+          borderColor: "#2E7D32",
+        });
+      }
+      // If this is not the correct answer and not the selected one, grey it out
+      else if (article !== selectedArticle) {
+        baseStyle.push(styles.disabledIncorrectButton);
+      }
+      // If this is the incorrectly selected answer
+      else if (article === selectedArticle) {
+        baseStyle.push({
+          backgroundColor: "#F44336",
+          borderWidth: 2,
+          borderColor: "#C62828",
+        });
+      }
     }
 
-    if (article === currentNoun.article) {
-      return "#4CAF50"; // Green for correct
-    }
+    return baseStyle;
+  };
 
-    return selectedArticle === article
-      ? "#F44336" // Red for incorrect selected
-      : article === "der"
-      ? "#add8e6"
-      : article === "die"
-      ? "#ffb6c1"
-      : "#98fb98";
+  const getTextStyle = (article) => {
+    if (
+      showResult &&
+      article !== currentNoun.article &&
+      article !== selectedArticle
+    ) {
+      return [styles.articleButtonText, styles.disabledText];
+    }
+    return styles.articleButtonText;
+  };
+
+  const getGenderTextStyle = (article) => {
+    if (
+      showResult &&
+      article !== currentNoun.article &&
+      article !== selectedArticle
+    ) {
+      return [styles.genderSmallText, styles.disabledText];
+    }
+    return styles.genderSmallText;
   };
 
   const resetPractice = () => {
@@ -117,7 +157,17 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
 
               {showResult && (
                 <View style={styles.resultContainer}>
-                  <Text style={styles.resultText}>
+                  <Text
+                    style={[
+                      styles.resultText,
+                      {
+                        color:
+                          selectedArticle === currentNoun.article
+                            ? "#4CAF50"
+                            : "#F44336",
+                      },
+                    ]}
+                  >
                     {selectedArticle === currentNoun.article
                       ? "Correct! ✓"
                       : `Incorrect ✗. It's ${currentNoun.article}`}
@@ -129,42 +179,30 @@ export default function GermanArticlesPracticeScreen({ navigation }) {
 
             <View style={styles.articlesContainer}>
               <TouchableOpacity
-                style={[
-                  styles.articleButton,
-                  { backgroundColor: getBackgroundColor("der") },
-                  showResult && styles.disabledButton,
-                ]}
+                style={getButtonStyle("der")}
                 onPress={() => handleArticleSelection("der")}
                 disabled={showResult}
               >
-                <Text style={styles.articleButtonText}>der</Text>
-                <Text style={styles.genderSmallText}>(masculine)</Text>
+                <Text style={getTextStyle("der")}>der</Text>
+                <Text style={getGenderTextStyle("der")}>(masculine)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[
-                  styles.articleButton,
-                  { backgroundColor: getBackgroundColor("die") },
-                  showResult && styles.disabledButton,
-                ]}
+                style={getButtonStyle("die")}
                 onPress={() => handleArticleSelection("die")}
                 disabled={showResult}
               >
-                <Text style={styles.articleButtonText}>die</Text>
-                <Text style={styles.genderSmallText}>(feminine)</Text>
+                <Text style={getTextStyle("die")}>die</Text>
+                <Text style={getGenderTextStyle("die")}>(feminine)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[
-                  styles.articleButton,
-                  { backgroundColor: getBackgroundColor("das") },
-                  showResult && styles.disabledButton,
-                ]}
+                style={getButtonStyle("das")}
                 onPress={() => handleArticleSelection("das")}
                 disabled={showResult}
               >
-                <Text style={styles.articleButtonText}>das</Text>
-                <Text style={styles.genderSmallText}>(neuter)</Text>
+                <Text style={getTextStyle("das")}>das</Text>
+                <Text style={getGenderTextStyle("das")}>(neuter)</Text>
               </TouchableOpacity>
             </View>
 
@@ -257,7 +295,6 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: colors.textPrimary,
   },
   genderText: {
     fontSize: 16,
@@ -293,6 +330,12 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.8,
+  },
+  disabledIncorrectButton: {
+    opacity: 0.4,
+  },
+  disabledText: {
+    opacity: 0.5,
   },
   nextButton: {
     backgroundColor: colors.accent,
